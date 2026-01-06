@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 
-function ProductStore({ products, addCoins, updateProgress }) {
-  const [cart, setCart] = useState([]);
+function ProductStore({ products, cart, addToCart, addCoins, updateProgress }) {
   const [filter, setFilter] = useState('All');
 
   const categories = ['All', 'Electronics', 'Fashion', 'Accessories'];
@@ -10,12 +9,10 @@ function ProductStore({ products, addCoins, updateProgress }) {
     ? products 
     : products.filter(product => product.category === filter);
 
-  const addToCart = (product) => {
-    const coinsEarned = Math.floor(product.price / 10) * 2;
-    setCart([...cart, product]);
-    addCoins(coinsEarned, `purchasing ${product.name}`);
+  const handleAddToCart = (product) => {
+    addToCart(product);
     updateProgress(product.price);
-    alert(`${product.name} added to cart! Earned ${coinsEarned} coins!`);
+    alert(`${product.name} added to cart! Earned ${Math.floor(product.price / 10) * 2} coins!`);
   };
 
   const renderStars = (rating) => {
@@ -40,7 +37,7 @@ function ProductStore({ products, addCoins, updateProgress }) {
         <div className="store-info">
           <p>Earn 2 coins for every Rs 10 spent</p>
           <div className="cart-info">
-            Cart Items: {cart.length} | Total: Rs {cart.reduce((sum, item) => sum + item.price, 0)}
+            Cart Items: {cart.reduce((total, item) => total + item.quantity, 0)} | Total: Rs {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
           </div>
         </div>
       </div>
@@ -73,7 +70,7 @@ function ProductStore({ products, addCoins, updateProgress }) {
               </div>
               <button 
                 className="add-to-cart-btn"
-                onClick={() => addToCart(product)}
+                onClick={() => handleAddToCart(product)}
               >
                 Add to Cart
               </button>
@@ -88,19 +85,18 @@ function ProductStore({ products, addCoins, updateProgress }) {
           <div className="cart-items">
             {cart.map((item, index) => (
               <div key={index} className="cart-item">
-                <span>{item.name}</span>
-                <span>Rs {item.price}</span>
+                <span>{item.name} x{item.quantity}</span>
+                <span>Rs {item.price * item.quantity}</span>
               </div>
             ))}
           </div>
           <div className="cart-total">
-            <strong>Total: Rs {cart.reduce((sum, item) => sum + item.price, 0)}</strong>
+            <strong>Total: Rs {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}</strong>
           </div>
           <button 
             className="checkout-btn"
             onClick={() => {
-              alert('Order placed successfully! Check your progress in the Profile Dashboard.');
-              setCart([]);
+              alert('Go to Checkout section to complete your order!');
             }}
           >
             Checkout

@@ -28,7 +28,6 @@ function ShoppingInsights({ userData }) {
           <li>You typically replace jeans every 8 months</li>
           <li>Winter boots needed based on seasonal patterns</li>
           <li>Size Medium in Brand X fits you perfectly</li>
-          <li>Electronics purchases increase 20% during weekends</li>
         </ul>
       </div>
     </div>

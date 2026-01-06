@@ -5,7 +5,7 @@ function SmartAlerts({ remainingAmount, daysLeft }) {
     <div className="smart-alerts">
       <h3>Smart Alerts</h3>
       <div className="alert-item priority">
-        Only Rs {remainingAmount} more needed for your 100 coin bonus!
+        Only Rs {remainingAmount} more needed for your 1000 coin bonus!
       </div>
       <div className="alert-item">
         {daysLeft} days left in January - You've got this!

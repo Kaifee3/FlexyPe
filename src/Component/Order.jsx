@@ -4,10 +4,17 @@ function OrderHistory({ orders }) {
   const [filterMonth, setFilterMonth] = useState('All');
   const [sortOrder, setSortOrder] = useState('newest');
 
-  // Get unique months from orders
   const months = ['All', ...new Set(orders.map(order => order.month))];
 
-  // Filter and sort orders
+  // Get recent orders (last 7 days)
+  const getRecentOrders = () => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return orders.filter(order => new Date(order.date) >= sevenDaysAgo);
+  };
+
+  const recentOrders = getRecentOrders();
+
   const filteredOrders = orders
     .filter(order => filterMonth === 'All' || order.month === filterMonth)
     .sort((a, b) => {
@@ -49,7 +56,36 @@ function OrderHistory({ orders }) {
         <p>Track all your purchases and monthly spending patterns</p>
       </div>
 
-      {/* Monthly Summary Cards */}
+      {recentOrders.length > 0 && (
+        <div className="recent-orders-section">
+          <h3>Recent Orders (Last 7 Days)</h3>
+          <div className="recent-orders-grid">
+            {recentOrders.map(order => (
+              <div key={order.id} className="recent-order-card">
+                <div className="recent-order-info">
+                  <span className="recent-order-id">#{order.id}</span>
+                  <span 
+                    className="recent-order-status" 
+                    style={{ backgroundColor: getStatusColor(order.status) }}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="recent-order-details">
+                  <span className="recent-order-total">Rs {order.total}</span>
+                  <span className="recent-order-items">{order.items.length} items</span>
+                </div>
+                {order.timestamp && (
+                  <div className="recent-order-time">
+                    Placed: {new Date(order.timestamp).toLocaleTimeString()}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="monthly-summary-cards">
         <h3>Monthly Summary</h3>
         <div className="summary-grid">
@@ -75,7 +111,6 @@ function OrderHistory({ orders }) {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="order-filters">
         <div className="filter-group">
           <label>Filter by Month:</label>
@@ -102,7 +137,6 @@ function OrderHistory({ orders }) {
         </div>
       </div>
 
-      {/* Orders List */}
       <div className="orders-container">
         {filteredOrders.length === 0 ? (
           <div className="no-orders">
@@ -115,6 +149,9 @@ function OrderHistory({ orders }) {
                 <div className="order-id-date">
                   <h4>Order #{order.id}</h4>
                   <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
+                  {order.timestamp && (
+                    <p className="order-timestamp">Placed: {order.timestamp}</p>
+                  )}
                   <span className="order-month">{order.month}</span>
                 </div>
                 <div className="order-status-total">
@@ -123,6 +160,8 @@ function OrderHistory({ orders }) {
                     style={{ backgroundColor: getStatusColor(order.status) }}
                   >
                     {order.status}
+                    {order.status === 'Processing' && ' 🔄'}
+                    {order.status === 'Delivered' && ' ✅'}
                   </span>
                   <span className="order-total">Rs {order.total}</span>
                 </div>
@@ -145,7 +184,6 @@ function OrderHistory({ orders }) {
         )}
       </div>
 
-      {/* Order Statistics */}
       <div className="order-stats">
         <h3>Your Shopping Statistics</h3>
         <div className="stats-grid">

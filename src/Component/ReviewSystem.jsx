@@ -29,7 +29,6 @@ function ReviewSystem({ products, addCoins }) {
 
     addCoins(5, `writing a review for ${productName}`);
     
-    // Reset form
     setSelectedProduct('');
     setRating(5);
     setReviewText('');

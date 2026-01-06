@@ -4,8 +4,6 @@ import UserHeader from './UserHeader'
 import MonthlyChallenge from './MonthlyChallenge'
 import ShoppingDNA from './ShoppingDNA'
 import CoinsRewards from './CoinsRewards'
-import Achievements from './Achievements'
-import ShoppingInsights from './ShoppingInsights'
 import RecentActivity from './RecentActivity'
 import QuickActions from './QuickActions'
 import SmartAlerts from './SmartAlerts'
@@ -20,7 +18,7 @@ function Profile() {
     name: "Kaifee Azam",
     memberSince: "March 2024",
     currentCoins: 245,
-    monthlyProgress: { current: 180, target: 200 },
+    monthlyProgress: { current: 1800, target: 9999 },
     shoppingScore: 85,
     achievements: {
       monthlyStreak: 3,
@@ -35,19 +33,20 @@ function Profile() {
       sizeSuccessRate: 94
     },
     recentPurchases: [
-      { date: "Jan 6", item: "Phone Case", amount: 26 },
-      { date: "Jan 5", item: "Winter Jacket", amount: 65 },
-      { date: "Jan 3", item: "Wireless Headphones", amount: 89 }
+      { date: "Jan 6", item: "Phone Case", amount: 260 },
+      { date: "Jan 5", item: "Winter Jacket", amount: 650 },
+      { date: "Jan 3", item: "Wireless Headphones", amount: 890 }
     ]
   });
 
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [cart, setCart] = useState([]);
   const [products] = useState([
     {
       id: 1,
       name: "Premium Wireless Earbuds",
       price: 99,
-      image: "https://via.placeholder.com/200x200?text=Earbuds",
+      image: "",
       rating: 4.5,
       reviews: 234,
       category: "Electronics"
@@ -56,7 +55,7 @@ function Profile() {
       id: 2,
       name: "Designer Winter Jacket",
       price: 150,
-      image: "https://via.placeholder.com/200x200?text=Jacket",
+      image: "",
       rating: 4.8,
       reviews: 456,
       category: "Fashion"
@@ -65,7 +64,7 @@ function Profile() {
       id: 3,
       name: "Smart Phone Case",
       price: 29,
-      image: "https://via.placeholder.com/200x200?text=Phone+Case",
+      image: "",
       rating: 4.2,
       reviews: 189,
       category: "Accessories"
@@ -74,14 +73,14 @@ function Profile() {
       id: 4,
       name: "Running Sneakers",
       price: 120,
-      image: "https://via.placeholder.com/200x200?text=Sneakers",
+      image: "",
       rating: 4.6,
       reviews: 321,
       category: "Fashion"
     }
   ]);
 
-  const [orders] = useState([
+  const [orders, setOrders] = useState([
     {
       id: 'ORD001',
       date: '2026-01-05',
@@ -106,6 +105,7 @@ function Profile() {
       status: 'Delivered',
       month: 'December 2025'
     },
+
     {
       id: 'ORD004',
       date: '2025-11-22',
@@ -116,12 +116,12 @@ function Profile() {
     }
   ]);
 
-  const [rewardsHistory] = useState([
+  const [rewardsHistory, setRewardsHistory] = useState([
     {
       id: 1,
       date: '2026-01-01',
       type: 'Monthly Challenge',
-      coins: 100,
+      coins: 1000,
       description: 'Completed December monthly target',
       month: 'January 2026'
     },
@@ -143,11 +143,20 @@ function Profile() {
     }
   ]);
 
-  const addCoins = (amount, reason) => {
+  const addCoins = (amount, reason, type = 'Purchase Bonus', orderId = null) => {
     setUserData(prev => ({
       ...prev,
       currentCoins: prev.currentCoins + amount
     }));
+    
+    // Add reward entry
+    addRewardEntry({
+      type: type,
+      coins: amount,
+      description: reason,
+      orderId: orderId
+    });
+    
     alert(`Congratulations! You earned ${amount} coins for ${reason}!`);
   };
 
@@ -161,13 +170,90 @@ function Profile() {
     }));
   };
 
+  const addToCart = (product) => {
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      setCart(cart.map(item => 
+        item.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
+    const coinsEarned = Math.floor(product.price / 10) * 2;
+    addCoins(coinsEarned, `adding ${product.name} to cart`, 'Shopping Action');
+  };
+
+  const updateCart = (newCart) => {
+    setCart(newCart);
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const addNewOrder = (orderData) => {
+    const currentDate = new Date();
+    const orderId = `ORD${String(orders.length + 1).padStart(3, '0')}`;
+    const monthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    
+    const newOrder = {
+      id: orderId,
+      date: currentDate.toISOString().split('T')[0],
+      items: orderData.items,
+      total: orderData.total,
+      status: 'Processing',
+      month: monthYear,
+      timestamp: currentDate.toLocaleString()
+    };
+    
+    setOrders(prevOrders => [newOrder, ...prevOrders]);
+    
+    // Update total orders count
+    setUserData(prev => ({
+      ...prev,
+      achievements: {
+        ...prev.achievements,
+        totalOrders: prev.achievements.totalOrders + 1
+      }
+    }));
+    
+    return newOrder;
+  };
+
+  const addRewardEntry = (rewardData) => {
+    const currentDate = new Date();
+    const monthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    const weekRange = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    
+    const newReward = {
+      id: rewardsHistory.length + 1,
+      date: currentDate.toISOString().split('T')[0],
+      type: rewardData.type,
+      coins: rewardData.coins,
+      description: rewardData.description,
+      month: monthYear,
+      week: weekRange,
+      timestamp: currentDate.toLocaleString(),
+      orderId: rewardData.orderId || null
+    };
+    
+    setRewardsHistory(prevRewards => [newReward, ...prevRewards]);
+    return newReward;
+  };
+
   const progressPercentage = (userData.monthlyProgress.current / userData.monthlyProgress.target) * 100;
   const remainingAmount = userData.monthlyProgress.target - userData.monthlyProgress.current;
   const daysLeft = 25; 
 
   return (
     <div className="profile-container">
-      {/* Enhanced Navigation */}
+    
       <div className="profile-navigation">
         <button 
           className={`nav-btn ${activeSection === 'dashboard' ? 'active' : ''}`}
@@ -219,8 +305,8 @@ function Profile() {
           <div className="profile-grid">
             <ShoppingDNA userData={userData} />
             <CoinsRewards userData={userData} />
-            <Achievements userData={userData} />
-            <ShoppingInsights userData={userData} />
+
+
             <RecentActivity userData={userData} />
             <QuickActions />
           </div>
@@ -231,6 +317,8 @@ function Profile() {
       {activeSection === 'products' && (
         <ProductStore 
           products={products} 
+          cart={cart}
+          addToCart={addToCart}
           addCoins={addCoins} 
           updateProgress={updateProgress}
         />
@@ -250,8 +338,12 @@ function Profile() {
       {activeSection === 'checkout' && (
         <CheckoutSection 
           products={products}
+          cart={cart}
+          updateCart={updateCart}
+          clearCart={clearCart}
           addCoins={addCoins}
           updateProgress={updateProgress}
+          addNewOrder={addNewOrder}
         />
       )}
 

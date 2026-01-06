@@ -25,7 +25,7 @@ function CoinsRewards({ userData }) {
         <div className="earning-rules">
           <h4>How to Earn Coins:</h4>
           <ul>
-            <li>Monthly minimum order (Rs 200): +100 coins</li>
+            <li>Monthly minimum order (Rs 9999): +1000 coins</li>
             <li>Product review: +5 coins</li>
             <li>Product purchase: +2 coins per Rs 10</li>
             <li>Referral success: +50 coins</li>

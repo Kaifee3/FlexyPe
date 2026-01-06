@@ -6,8 +6,8 @@ function MonthlyChallenge({ userData, progressPercentage, remainingAmount, daysL
       <h2>Monthly Shopping Challenge</h2>
       <div className="challenge-content">
         <div className="progress-info">
-          <h3>Reach Rs 200 minimum order this month</h3>
-          <p className="reward-text">Reward: 100 Coins (Worth Rs 50)</p>
+          <h3>Reach Rs 9999 minimum order this month</h3>
+          <p className="reward-text">Reward: 1000 Coins (Worth Rs 500)</p>
           <div className="progress-details">
             <span>Rs {userData.monthlyProgress.current} / Rs {userData.monthlyProgress.target}</span>
             <span className="percentage">{Math.round(progressPercentage)}%</span>
